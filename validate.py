@@ -1,5 +1,6 @@
 import csv
 import requests
+from bs4 import BeautifulSoup
 from tqdm import tqdm
 
 filename = "schools.csv"
@@ -15,9 +16,10 @@ with open(filename, "r") as csvfile:
         url = row[1]  # assuming URL is in the second column
         try:
             response = requests.get(url)
-            if response.status_code == 200:
+            soup = BeautifulSoup(response.content, "html.parser")
+            if response.status_code == 200 and "404" not in soup.get_text():
                 print(f"{url} is valid.")
             else:
-                print(f"{url} returned a {response.status_code} status code.")
+                print(f"{url} returned a 404 error.")
         except requests.exceptions.RequestException as e:
             print(f"{url} raised an exception: {e}")
